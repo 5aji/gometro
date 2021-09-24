@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -76,9 +78,28 @@ func GetStops(route RouteID, direction int) []Stop {
 	return stops
 }
 
+// for depatures, we want to parse the strange string they used and turn it into a time.
+// we use a custom type
+
+type CustomTime struct {
+	time.Time
+}
+
+func (ct *CustomTime) UnmarshalJSON(b []byte) (err error) {
+	str := strings.Trim(string(b), "\"()/Date") // now its 12354678-0500
+	str = strings.Split(str, "-")[0]
+	if str == "null" {
+		ct.Time = time.Time{}
+		return
+	}
+	millis, err := strconv.Atoi(str)
+	ct.Time = time.UnixMilli(int64(millis))
+	return
+}
+
 type Departure struct {
 	Actual bool
-	DepartureTime time.Time
+	DepartureTime CustomTime
 }
 
 func GetDepartures(route RouteID, direction int, stopID string) []Departure {
