@@ -86,7 +86,7 @@ type CustomTime struct {
 }
 
 func (ct *CustomTime) UnmarshalJSON(b []byte) (err error) {
-	str := strings.Trim(string(b), "\"()/Date") // now its 12354678-0500
+	str := strings.Trim(string(b), "\"\\/Date()") // now its 12354678-0500
 	str = strings.Split(str, "-")[0]
 	if str == "null" {
 		ct.Time = time.Time{}
@@ -111,6 +111,7 @@ func GetDepartures(route RouteID, direction int, stopID string) []Departure {
 	}
 	return deps
 }
+
 func main() {
 	providers := GetProviders()
 
@@ -122,5 +123,5 @@ func main() {
 
 	fmt.Printf("%#v\n", routes[0])
 
-	GetDepartures(902, 1, "EABK")
+	fmt.Printf("%#v", GetDepartures(902, 1, "EABK"))
 }
